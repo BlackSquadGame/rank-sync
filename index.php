@@ -71,27 +71,33 @@
 					echo '<font size="60" color="white">'.$level['name']."</font>";
 					echo "<br><br>";
 					logoutbutton();
-          try {
+          if (strlen($teamspeak['loginpass']) > 0){
             TeamSpeak3::init();
             $uri = "serverquery://".$teamspeak["loginname"].":".$teamspeak["loginpass"]."@".$teamspeak["host"].":".$teamspeak["queryport"]."/?server_port=".$teamspeak["serverport"]."&nickname=".urlencode($teamspeak["nickname"]);
             echo $uri."<br>";
             $ts3_VirtualServer = TeamSpeak3::factory($uri);
             $ip = isset($_SERVER['HTTP_CLIENT_IP'])?$_SERVER['HTTP_CLIENT_IP']:isset($_SERVER['HTTP_X_FORWARDED_FOR'])?$_SERVER['HTTP_X_FORWARDED_FOR']:$_SERVER['REMOTE_ADDR'];
-            //$client = $ts3_VirtualServer->clientFindDb($ip, true);
             foreach($ts3_VirtualServer->clientList() as $client)
             {
               if($client["client_type"]) continue;
               $clientInfo = $client->getInfo();
-              print_r($clientInfo['connection_client_ip']." == ".$ip);
-              if($clientInfo['connection_client_ip'] == $ip){
-                if( $ts3_VirtualServer->serverGroupClientAdd($teamspeak['blacksquadgroupid'], $client[0]) )
-                    echo "You are now registered as Black Squad Player!";
-                if( $ts3_VirtualServer->serverGroupClientAdd($level['ts3_group_id'], $client[0]) )
-                    echo "Dein Rank wurde erfolgreich geändert!";
-              }
+              print_r($clientInfo['client_nickname'].": ".$clientInfo['connection_client_ip']." == ".$ip);
+              //if($clientInfo['connection_client_ip'] == $ip){
+                $sgids = explode(",", $client["client_servergroups"]);
+                foreach ($rank as $key) {
+                  if ($level['ts3_group_id'] == $key['ts3_group_id'])
+                    continue;
+                  if (in_array($key['ts3_group_id'], $sgids)){
+                    $client->remServerGroup($key['ts3_group_id']);
+                  }
+                }
+                if (!in_array($teamspeak['blacksquadgroupid'], $sgids))
+                  $client->addServerGroup($teamspeak['blacksquadgroupid']);
+                if (!in_array($level['ts3_group_id'], $sgids))
+                  $client->addServerGroup($level['ts3_group_id']);
+                break;
+              //}
             }
-          } catch(Exception $e) {
-            exit("Fehler!<br/>ErrorID: <b>". $e->getCode() ."</b>; Error Message: <b>". $e->getMessage() ."</b>;");
           }
 				}
 				?>
