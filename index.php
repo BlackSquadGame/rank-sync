@@ -1,7 +1,15 @@
 <?php
-    require ('steamauth/steamauth.php');  
+  require __DIR__ . '/vendor/autoload.php';
+  require ('lib/steamauth/steamauth.php');
 	require_once ('config.php');
-	$achievements_file = "cache/achievements.json";
+  require_once 'steam-condenser.php';
+  //$id = SteamId::create('bluscream');
+  //print_r(json_encode($id, JSON_PRETTY_PRINT));
+  //$stats = $id->getGameStats('blacksquad');
+  //print_r($stats);
+  //$achievements = $id->getAchievements(550650);
+  //print_r($achievements);
+	//$achievements_file = "cache/achievements.json";
 	if (!file_exists($achievements_file)) {
 		$url = file_get_contents("https://api.steampowered.com/ISteamUserStats/GetSchemaForGame/v2/?key=".$steamauth['apikey']."&appid=550650");
 		$content = json_decode($url, true);
@@ -42,29 +50,56 @@
 				if(!isset($_SESSION['steamid'])) {
 					loginbutton();
 				}  else {
-					include ('steamauth/userInfo.php');
-					include ('steamauth/userAchievements.php');
-					$level = "Level 0-30";
+					include ('lib/steamauth/userInfo.php');
+					include ('lib/steamauth/userAchievements.php');
+					$level = $rank['Recruit'];
 					foreach($steamprofile['achievements'] as $value) {
 						if (!$value["achieved"]) continue;
 						switch ($value["apiname"]) {
-							case "A008_BlackSquad": $level = "Level 100"; break;
-							case "A006_FieldOfficer": $level = "Level 60-99"; break;
-							case "A005_HigherOfficer": $level = "Level 50-59"; break;
-							case "A004_SeniorOfficer": $level = "Level 40-49"; break;
-							case "A003_Officer": $level = "Level 30-39"; break;
+							case "A008_BlackSquad":
+                $level = $rank['A008_BlackSquad'];break;
+							case "A006_FieldOfficer":
+                $level = $rank['A006_FieldOfficer'];break;
+							case "A005_HigherOfficer":
+                $level = $rank['A005_HigherOfficer'];break;
+							case "A004_SeniorOfficer":
+                $level = $rank['A004_SeniorOfficer'];break;
+							case "A003_Officer":
+                $level = $rank['A003_Officer'];break;
 						}
 					}
-					echo '<font size="60" color="white">'.$level."</font>";
+					echo '<font size="60" color="white">'.$level['name']."</font>";
 					echo "<br><br>";
 					logoutbutton();
-				}    
+          try {
+            TeamSpeak3::init();
+            $uri = "serverquery://".$teamspeak["loginname"].":".$teamspeak["loginpass"]."@".$teamspeak["host"].":".$teamspeak["queryport"]."/?server_port=".$teamspeak["serverport"]."&nickname=".urlencode($teamspeak["nickname"]);
+            echo $uri."<br>";
+            $ts3_VirtualServer = TeamSpeak3::factory($uri);
+            $ip = isset($_SERVER['HTTP_CLIENT_IP'])?$_SERVER['HTTP_CLIENT_IP']:isset($_SERVER['HTTP_X_FORWARDED_FOR'])?$_SERVER['HTTP_X_FORWARDED_FOR']:$_SERVER['REMOTE_ADDR'];
+            //$client = $ts3_VirtualServer->clientFindDb($ip, true);
+            foreach($ts3_VirtualServer->clientList() as $client)
+            {
+              if($client["client_type"]) continue;
+              $clientInfo = $client->getInfo();
+              print_r($clientInfo['connection_client_ip']." == ".$ip);
+              if($clientInfo['connection_client_ip'] == $ip){
+                if( $ts3_VirtualServer->serverGroupClientAdd($teamspeak['blacksquadgroupid'], $client[0]) )
+                    echo "You are now registered as Black Squad Player!";
+                if( $ts3_VirtualServer->serverGroupClientAdd($level['ts3_group_id'], $client[0]) )
+                    echo "Dein Rank wurde erfolgreich geändert!";
+              }
+            }
+          } catch(Exception $e) {
+            exit("Fehler!<br/>ErrorID: <b>". $e->getCode() ."</b>; Error Message: <b>". $e->getMessage() ."</b>;");
+          }
+				}
 				?>
 				</center>
-			</div> 
+			</div>
 		<!--div class="pull-right">
 			<i><a href="https://github.com/BlackSquadGame/rank-sync">BlackSquad Rank Sync</a> by <a href="https://github.com/Bluscream">Bluscream</a>.</i>
 		</div-->
-		</div> 
+		</div>
 	</body>
 </html>
