@@ -1,7 +1,4 @@
 
-cache/
 config.php
-ts3phpframework/
-Discord/
 steamauth/openid.php
 steamauth/steamauth.php
