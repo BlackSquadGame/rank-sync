@@ -8,3 +8,4 @@ Discord/
 steamauth/
 !steamauth/userInfo.php
 !steamauth/SteamConfig.php
+test.xml
