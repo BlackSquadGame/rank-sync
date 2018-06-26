@@ -1,0 +1,23 @@
+{
+    "name": "BlackSquadGame/rank-sync",
+    "description": "rank-sync makes it easy to sync Teamspeak and Discord ranks with Black Squad",
+    "keywords": ["steam", "steam authentication", "steam api", "steam sdk"],
+    "type": "library",
+    "license": "MIT",
+    "homepage": "BlackSquadGame/rank-sync",
+    "authors": [
+      "name": "Bluscream",
+      "email": "omitomit1@gmail.com"
+    ],
+	"support": {
+		"email": "omitomit1@gmail.com",
+		"issues": "https://github.com/BlackSquadGame/rank-sync/issues",
+		"docs": "https://github.com/BlackSquadGame/rank-sync/blob/master/README.MD"
+	},
+	"require": {
+		"php": ">=5.2.1"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "5.7.*"
+	},
+}
