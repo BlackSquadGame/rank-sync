@@ -1,4 +1,10 @@
 
+cache/
 config.php
-steamauth/openid.php
-steamauth/steamauth.php
+
+ts3phpframework/
+Discord/
+
+steamauth/
+!steamauth/userInfo.php
+!steamauth/SteamConfig.php
