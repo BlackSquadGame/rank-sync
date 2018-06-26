@@ -34,21 +34,27 @@
 		<center><img src="img/BlackSquad.png" />
 		<hr>
 		<?php
-			if(!isset($_SESSION['steamid'])) {
-				echo "<div style='margin: 30px auto; text-align: center;'>Welcome Guest! Please log in!<br>";
-				loginbutton();
-				echo "</div>";
-			}  else {
-				include ('steamauth/userInfo.php');
-				$url = file_get_contents("https://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=550650&key=".$steamauth['apikey']."&steamid=".$_SESSION['steamid']);
-				$content = json_decode($url, true);
-				$buffer = fopen("cache/{$_SESSION['steamid']}/achievements.json", "w+");
-				fwrite($buffer, json_encode($content, JSON_PRETTY_PRINT));
-				fclose($buffer);
-		?>
-		<span><?php logoutbutton(); ?></span>
-		<?php
-			}    
+		if(!isset($_SESSION['steamid'])) {
+			echo "<div style='margin: 30px auto; text-align: center;'>Welcome Guest! Please log in!<br>";
+			loginbutton();
+			echo "</div>";
+		}  else {
+			include ('steamauth/userInfo.php');
+			include ('steamauth/userAchievements.php');
+			$level = " Level 0-30";
+			foreach($steamprofile['achievements'] as $value) {
+				if (!$value["achieved"]) continue;
+				switch ($value["name"]) {
+					case "A008_BlackSquad": $level = "Level 100"; break;
+					case "A006_FieldOfficer": $level = "Level 60-99"; break;
+					case "A005_HigherOfficer": $level = "Level 50-59"; break;
+					case "A004_SeniorOfficer": $level = "Level 40-49"; break;
+					case "A003_Officer": $level = "Level 30-39"; break;
+				}
+			}
+			echo $level;
+			logoutbutton();
+		}    
 		?>
 		<hr>
 		</center>
