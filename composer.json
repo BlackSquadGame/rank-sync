@@ -19,6 +19,7 @@
         "koraktor/steam-condenser": "~1.3.10",
         "planetteamspeak/ts3-php-framework": "~1.1.32",
         "team-reflex/discord-php": "~4.0.3",
-        "defuse/php-encryption": "~2.2.0"
+        "defuse/php-encryption": "~2.2.0",
+        "team-reflex/oauth2-discord": "^1.0"
     }
 }
